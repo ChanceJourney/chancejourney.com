@@ -1,7 +1,15 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tanstack-start-app",
+  "name": "chancejourney",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
+  "d1_databases": [
+    {
+      "binding": "chancejourney",
+      "database_name": "chancejourney",
+      "database_id": "1294cab1-da34-4389-837a-06bb3350d117",
+      "remote": false,
+    },
+  ],
 }
