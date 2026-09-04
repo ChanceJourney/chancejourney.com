@@ -6,9 +6,10 @@
   "main": "@tanstack/react-start/server-entry",
   "d1_databases": [
     {
-      "binding": "chancejourney",
+      "binding": "DB",
       "database_name": "chancejourney",
       "database_id": "1294cab1-da34-4389-837a-06bb3350d117",
+      "migrations_dir": "migrations",
       "remote": false,
     },
   ],
