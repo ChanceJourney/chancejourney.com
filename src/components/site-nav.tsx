@@ -1,10 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { PlusIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LogoDark, LogoLight } from "./logo";
+import { WaitlistDialog } from "./waitlist-dialog";
 
 export function SiteNav() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -73,20 +72,15 @@ export function SiteNav() {
             </span>
           </span>
         </Link>
-        <Button
-          type="button"
-          variant="ghost"
-          className={cn(
+        <WaitlistDialog
+          triggerClassName={cn(
             sideControlBaseClass,
             "right-3 gap-1.5 bg-foreground/10 px-3 text-xs font-semibold text-foreground backdrop-blur-xl peer-hover/logo:pointer-events-none peer-hover/logo:opacity-0 peer-focus-visible/logo:pointer-events-none peer-focus-visible/logo:opacity-0 hover:bg-foreground/15 sm:right-6 sm:px-4 sm:text-sm sm:peer-hover/logo:pointer-events-auto sm:peer-hover/logo:opacity-100 sm:peer-focus-visible/logo:pointer-events-auto sm:peer-focus-visible/logo:opacity-100",
             isScrolled
               ? "top-2 h-8 shadow-none sm:h-9"
               : "top-4 h-10 shadow-[0_10px_28px_rgba(0,0,0,0.1)] sm:h-11",
           )}
-        >
-          <PlusIcon aria-hidden="true" className="size-4" />
-          Waitlist
-        </Button>
+        />
       </div>
     </header>
   );
