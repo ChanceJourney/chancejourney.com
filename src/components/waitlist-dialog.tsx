@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
+import { useServerFn } from "@tanstack/react-start";
 import { CheckIcon, ChevronDownIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -19,28 +19,11 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { submitWaitlistForm } from "@/lib/waitlist.functions";
+import { waitlistEmailOnBlurSchema, waitlistSchema } from "@/lib/waitlist-schema";
+import type { WaitlistFormValues } from "@/lib/waitlist-schema";
 
-const optionalShortText = z.string().trim().max(100, "Keep this under 100 characters.");
-const invalidEmailMessage = "Enter a valid email address.";
-const emailFormatSchema = z.email(invalidEmailMessage);
-const emailOnBlurSchema = z
-  .string()
-  .trim()
-  .refine((value) => value.length === 0 || emailFormatSchema.safeParse(value).success, {
-    message: invalidEmailMessage,
-  });
-
-const waitlistSchema = z.object({
-  email: z.string().trim().min(1, "Email is required.").pipe(emailFormatSchema),
-  name: optionalShortText,
-  company: optionalShortText,
-  role: optionalShortText,
-  currentAi: z.string().trim().max(300, "Keep this under 300 characters."),
-  aiFeelings: z.string().trim().max(1000, "Keep this under 1,000 characters."),
-  aiEraChange: z.string().trim().max(1000, "Keep this under 1,000 characters."),
-});
-
-const defaultValues: z.input<typeof waitlistSchema> = {
+const defaultValues: WaitlistFormValues = {
   email: "",
   name: "",
   company: "",
@@ -50,18 +33,25 @@ const defaultValues: z.input<typeof waitlistSchema> = {
   aiEraChange: "",
 };
 
-type WaitlistSubmission = z.output<typeof waitlistSchema>;
-
 export function WaitlistDialog({ triggerClassName }: { triggerClassName?: string }) {
-  const [submission, setSubmission] = useState<WaitlistSubmission | null>(null);
+  const submitWaitlist = useServerFn(submitWaitlistForm);
+  const [submission, setSubmission] = useState<{ name: string } | null>(null);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const form = useForm({
     defaultValues,
     validators: {
       onSubmit: waitlistSchema,
     },
-    onSubmit: ({ value }) => {
-      setSubmission(waitlistSchema.parse(value));
+    onSubmit: async ({ value }) => {
+      setSubmissionError(null);
+
+      try {
+        const result = await submitWaitlist({ data: waitlistSchema.parse(value) });
+        setSubmission(result);
+      } catch {
+        setSubmissionError("We couldn't save your submission. Please try again.");
+      }
     },
   });
 
@@ -71,6 +61,7 @@ export function WaitlistDialog({ triggerClassName }: { triggerClassName?: string
         if (open) {
           form.reset();
           setSubmission(null);
+          setSubmissionError(null);
           setDetailsOpen(false);
         }
       }}
@@ -118,7 +109,7 @@ export function WaitlistDialog({ triggerClassName }: { triggerClassName?: string
               }}
             >
               <FieldGroup className="gap-4">
-                <form.Field name="email" validators={{ onBlur: emailOnBlurSchema }}>
+                <form.Field name="email" validators={{ onBlur: waitlistEmailOnBlurSchema }}>
                   {(field) => {
                     const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
@@ -135,6 +126,7 @@ export function WaitlistDialog({ triggerClassName }: { triggerClassName?: string
                           name={field.name}
                           type="email"
                           autoComplete="email"
+                          maxLength={320}
                           placeholder="you@company.com"
                           className="placeholder:text-sm placeholder:leading-5"
                           required
@@ -376,10 +368,21 @@ export function WaitlistDialog({ triggerClassName }: { triggerClassName?: string
                 </Collapsible>
               </FieldGroup>
 
+              {submissionError && (
+                <p role="alert" className="mt-4 text-sm leading-5 text-destructive">
+                  {submissionError}
+                </p>
+              )}
+
               <form.Subscribe selector={(state) => state.isSubmitting}>
                 {(isSubmitting) => (
                   <DialogFooter className="mt-6">
-                    <Button type="submit" className="w-full sm:w-auto" disabled={isSubmitting}>
+                    <Button
+                      type="submit"
+                      className="w-full sm:w-auto"
+                      disabled={isSubmitting}
+                      aria-busy={isSubmitting}
+                    >
                       {isSubmitting ? "Joining..." : "Join waitlist"}
                     </Button>
                   </DialogFooter>
