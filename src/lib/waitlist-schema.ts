@@ -16,15 +16,15 @@ export const waitlistSchema = z.object({
     .string()
     .trim()
     .min(1, "Email is required.")
-    .max(320, "Keep this under 320 characters.")
+    .max(128, "Keep this under 128 characters.")
     .pipe(emailFormatSchema)
     .transform((email) => email.toLowerCase()),
   name: optionalShortText,
   company: optionalShortText,
   role: optionalShortText,
-  currentAi: z.string().trim().max(300, "Keep this under 300 characters."),
-  aiFeelings: z.string().trim().max(1000, "Keep this under 1,000 characters."),
-  aiEraChange: z.string().trim().max(1000, "Keep this under 1,000 characters."),
+  currentAi: z.string().trim().max(200, "Keep this under 300 characters."),
+  aiFeelings: z.string().trim().max(800, "Keep this under 1,000 characters."),
+  aiEraChange: z.string().trim().max(800, "Keep this under 1,000 characters."),
 });
 
 export type WaitlistFormValues = z.input<typeof waitlistSchema>;
