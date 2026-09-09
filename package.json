@@ -13,7 +13,7 @@
     "db:migrate:local": "wrangler d1 migrations apply chancejourney --local",
     "db:migrate:remote": "wrangler d1 migrations apply chancejourney --remote",
     "preview": "vp preview",
-    "deploy": "pnpm run build && wrangler deploy",
+    "deploy": "vp run build && vp run db:migrate:remote && wrangler deploy",
     "prepare": "vp config"
   },
   "dependencies": {
