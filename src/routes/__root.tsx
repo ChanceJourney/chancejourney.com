@@ -20,7 +20,7 @@ export const Route = createRootRoute({
       },
       {
         name: "description",
-        content: "CJ changes the world.",
+        content: "Make change happen.",
       },
     ],
     links: [
